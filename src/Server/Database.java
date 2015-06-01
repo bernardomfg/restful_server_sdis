@@ -20,7 +20,7 @@ public class Database {
 
     }
 
-    public void closeConnection(){
+    private void closeConnection(){
 
         try {
             this.stmt.close();
@@ -30,7 +30,7 @@ public class Database {
         }
     }
 
-    public void openConnection() {
+    private void openConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
             this.conn = DriverManager.getConnection("jdbc:sqlite:sdis_db.db");
@@ -68,7 +68,7 @@ public class Database {
         System.out.println("Insert completed!");
     }
 
-    public void createUserTable(){
+    private void createUserTable(){
         String sql_create = "CREATE TABLE IF NOT EXISTS User(idUser INTEGER PRIMARY KEY  AUTOINCREMENT, username varchar(50) NOT NULL, email varchar(255) NOT NULL, password varchar(255))";
 
         try {
@@ -79,7 +79,7 @@ public class Database {
         System.out.println("User table created!");
     }
 
-    public void createTables(){
+    private void createTables(){
         openConnection();
         createUserTable();
         //TODO: create more tables

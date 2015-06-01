@@ -13,5 +13,7 @@ public class BaseHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
 
+        System.out.println(httpExchange.getRequestMethod());
+
     }
 }

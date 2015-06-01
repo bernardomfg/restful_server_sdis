@@ -12,6 +12,8 @@ public class RegisterHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
+        System.out.println(httpExchange.getHttpContext().getPath());
+        System.out.println("request method: " + httpExchange.getRequestMethod());
 
     }
 }
