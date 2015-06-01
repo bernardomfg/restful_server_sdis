@@ -43,7 +43,7 @@ public class Database {
         }
     }
 
-    public void insertUsers(String username, String password, String email){
+    public void insertUser(String username, String password, String email){
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
         sql_builder.append("INSERT INTO User (username, password, email) VALUES('");

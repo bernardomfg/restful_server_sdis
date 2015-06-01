@@ -15,5 +15,10 @@ public class RegisterHandler implements HttpHandler {
         System.out.println(httpExchange.getHttpContext().getPath());
         System.out.println("request method: " + httpExchange.getRequestMethod());
 
+        if (httpExchange.getRequestMethod().equals("POST")){
+            System.out.println(httpExchange.getRequestBody().toString());
+        }
+
+
     }
 }
