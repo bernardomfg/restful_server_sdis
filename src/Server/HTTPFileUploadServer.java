@@ -1,13 +1,12 @@
-/*
-* HTTPFileUploadServer.java
-* Author: Bernardo Gonçalves
+package Server;/*
+* Server.HTTPFileUploadServer.java
+* Author: Bernardo Gonï¿½alves
 * @version 1.00
 */
 
 // A File upload server which will handle files of any type and size
 // (Text as well as binary files including images)
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 import java.util.*;

@@ -1,11 +1,13 @@
-/*
-* Database.java
+package Server;/*
+* Server.Database.java
 * Created by Bernardo on 26-05-2015
 * @version 0.1.0
 */
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 
 public class Database {
