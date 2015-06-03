@@ -82,7 +82,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);
+            return;
         }
         System.out.println("User table created!");
     }
