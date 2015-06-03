@@ -28,7 +28,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            return;
+            System.exit(-1);
         }
     }
 
@@ -43,7 +43,7 @@ public class Database {
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
     }
 
@@ -65,7 +65,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
 
 
@@ -82,7 +82,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
         System.out.println("User table created!");
     }
@@ -105,7 +105,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
 
 
@@ -122,7 +122,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
         System.out.println("File table created!");
     }
@@ -145,7 +145,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(SHUTDOWN_MESSAGE);
-            System.exit(-1);;
+            System.exit(-1);
         }
 
 
@@ -155,7 +155,7 @@ public class Database {
     }
 
     private void createUserFileTable(){
-        String sql_create = "CREATE TABLE IF NOT EXISTS File(username VARCHAR, idFile INTEGER, permissions INTEGER NOT NULL, UNIQUE(username,idFile), FOREIGN KEY (username) REFERENCES User(username), FOREIGN KEY (idFile) REFERENCES File(idFile), CHECK (permission >= 0 AND permission <= 1)));";
+        String sql_create = "CREATE TABLE IF NOT EXISTS File(username VARCHAR, idFile INTEGER, permissions INTEGER NOT NULL, UNIQUE(username,idFile), FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE , FOREIGN KEY (idFile) REFERENCES File(idFile) ON DELETE CASCADE, CHECK (permission >= 0 AND permission <= 1));";
         /*
          * 0 - Editing permissions - User (Read/Write)
          * 1 - Removing permissions - Owner (User + Delete file)
@@ -175,7 +175,7 @@ public class Database {
         openConnection();
         createUserTable();
         createFileTable();
-        //createUserFileTable();
+        createUserFileTable();
 
         closeConnection();
     }
