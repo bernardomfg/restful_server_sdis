@@ -9,7 +9,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-
 public class Database {
     private Connection conn = null;
     private Statement stmt = null;
@@ -154,13 +153,6 @@ public class Database {
         System.out.println("User table created!");
     }
 
-    /*CREATE TABLE IF NOT EXISTS PollCategory (
-  idPoll     INTEGER,
-  idCategory INTEGER,
-  UNIQUE (idPoll, idCategory),
-  FOREIGN KEY (idPoll) REFERENCES Poll ON DELETE CASCADE,
-  FOREIGN KEY (idCategory) REFERENCES Category ON DELETE CASCADE
-);*/
 
     private void createTables(){
         openConnection();

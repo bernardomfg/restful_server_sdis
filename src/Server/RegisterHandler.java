@@ -2,6 +2,7 @@ package Server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.json.*;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class RegisterHandler implements HttpHandler {
         System.out.println("request method: " + httpExchange.getRequestMethod());
 
         if (httpExchange.getRequestMethod().equals("POST")){
-            System.out.println(httpExchange.getRequestBody().toString());
+
         }
 
 
