@@ -1,8 +1,8 @@
 package Server;
 
 import com.sun.net.httpserver.HttpServer;
+
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 
@@ -20,17 +20,13 @@ public class Server {
 
     public static void main(String[] args) throws IOException{
 
-        final HttpServer httpServer = HttpServer.create(new InetSocketAddress(InetAddress.getByName(ADDR_NAME), PORT), BACKLOG);
+        final HttpServer httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext(BASE_CONTEXT, new BaseHandler());
         httpServer.createContext(REGISTER_CONTEXT, new RegisterHandler());
         httpServer.createContext(LOGIN_CONTEXT, new LoginHandler());
         httpServer.setExecutor(null); // allow default executor to be created
         System.out.println("Server starting...");
         httpServer.start();
-
-
-
-
     }
 
 }

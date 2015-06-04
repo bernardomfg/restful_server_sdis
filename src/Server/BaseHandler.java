@@ -15,5 +15,6 @@ public class BaseHandler implements HttpHandler {
 
         System.out.println(httpExchange.getRequestMethod());
 
+        System.out.println(httpExchange.getRequestHeaders());
     }
 }

@@ -15,12 +15,12 @@ public class Database {
     private final String SHUTDOWN_MESSAGE = "The Server will now shutdown.";
 
 
-    public Database(){
+    public Database() {
         createTables();
 
     }
 
-    private void closeConnection(){
+    private void closeConnection() {
 
         try {
             this.stmt.close();
@@ -47,7 +47,7 @@ public class Database {
         }
     }
 
-    public void insertUsers(String username, String password, String email){
+    public void insertUsers(String username, String password, String email) {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
         sql_builder.append("INSERT INTO User (username, password, email) VALUES('");
@@ -64,8 +64,10 @@ public class Database {
             this.stmt.executeUpdate(sql_result);
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            /*
             System.err.println(SHUTDOWN_MESSAGE);
             System.exit(-1);
+            */
         }
 
 
@@ -74,7 +76,7 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
-    private void createUserTable(){
+    private void createUserTable() {
         String sql_create = "CREATE TABLE IF NOT EXISTS User(username varchar(50) PRIMARY KEY, email varchar(255) NOT NULL, password varchar(255))";
 
         try {
@@ -87,7 +89,7 @@ public class Database {
         System.out.println("User table created!");
     }
 
-    public void insertFiles(String filename, String path, int version){
+    public void insertFiles(String filename, String path, int version) {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
         sql_builder.append("INSERT INTO File (filename, path, version) VALUES('");
@@ -104,8 +106,10 @@ public class Database {
             this.stmt.executeUpdate(sql_result);
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            /*
             System.err.println(SHUTDOWN_MESSAGE);
             System.exit(-1);
+            */
         }
 
 
@@ -114,7 +118,7 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
-    private void createFileTable(){
+    private void createFileTable() {
         String sql_create = "CREATE TABLE IF NOT EXISTS File(idFIle INTEGER PRIMARY KEY  AUTOINCREMENT, filename varchar(50) NOT NULL, path varchar(255) NOT NULL, version INTEGER NOT NULL);";
 
         try {
@@ -127,7 +131,7 @@ public class Database {
         System.out.println("File table created!");
     }
 
-    public void insertUserFile(String username, int idFile, int permission){
+    public void insertUserFile(String username, int idFile, int permission) {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
         sql_builder.append("INSERT INTO UserFile (idUser, idFile, permission) VALUES('");
@@ -144,8 +148,10 @@ public class Database {
             this.stmt.executeUpdate(sql_result);
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
+           /*
             System.err.println(SHUTDOWN_MESSAGE);
             System.exit(-1);
+            */
         }
 
 
@@ -154,7 +160,7 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
-    private void createUserFileTable(){
+    private void createUserFileTable() {
         String sql_create = "CREATE TABLE IF NOT EXISTS File(username VARCHAR, idFile INTEGER, permissions INTEGER NOT NULL, UNIQUE(username,idFile), FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE , FOREIGN KEY (idFile) REFERENCES File(idFile) ON DELETE CASCADE, CHECK (permission >= 0 AND permission <= 1));";
         /*
          * 0 - Editing permissions - User (Read/Write)
@@ -164,14 +170,16 @@ public class Database {
             this.stmt.executeUpdate(sql_create);
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
+
             System.err.println(SHUTDOWN_MESSAGE);
             System.exit(-1);
+
         }
         System.out.println("UserFile table created!");
     }
 
 
-    private void createTables(){
+    private void createTables() {
         openConnection();
         createUserTable();
         createFileTable();
