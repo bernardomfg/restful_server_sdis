@@ -5,10 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.json.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import static Server.Server.db;
 
@@ -26,19 +23,25 @@ public class RegisterHandler implements HttpHandler {
         String method;
         method = httpExchange.getRequestMethod();
 
-        Headers headers;
-        headers = httpExchange.getRequestHeaders();
+        Headers requestHeaders;
+        requestHeaders = httpExchange.getRequestHeaders();
 
         InputStream inputStream;
         inputStream = httpExchange.getRequestBody();
 
         BufferedReader bfBody = new BufferedReader(new InputStreamReader(inputStream));
 
+        Headers responseHeaders;
+        responseHeaders = httpExchange.getResponseHeaders();
+
+        OutputStream responseBody = null;
+
+
         System.out.println(httpExchange.getHttpContext().getPath());
         System.out.println("request method: " + method);
 
         if (method.equals("POST")){
-            if (headers.getFirst("Content-Type").equals("application/json")){
+            if (requestHeaders.getFirst("Content-Type").equals("application/json")){
                 try {
                     json = new JSONObject(bfBody.readLine());
                     username = json.get("username").toString();
@@ -52,6 +55,13 @@ public class RegisterHandler implements HttpHandler {
 
                     db.insertUsers(username, password, email);
 
+                    responseHeaders.set("Content-type", "text/plain");
+                    httpExchange.sendResponseHeaders(200, 0);
+                    responseBody = httpExchange.getResponseBody();
+                    responseBody.write(username.getBytes());
+                    responseBody.close();
+
+
                 } catch (Exception e) {
                     System.err.println(e.getClass().getName() + ": " + e.getMessage());
 
@@ -64,6 +74,8 @@ public class RegisterHandler implements HttpHandler {
             }
 
 
+        } else if (method.equals("GET")){
+            System.out.println("Fizeste GET no /register");
         }
 
 

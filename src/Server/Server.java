@@ -15,6 +15,7 @@ public class Server {
     public static final String ADDR_NAME = "127.0.0.1";
     public static final String BASE_CONTEXT = "/";
     public static final String REGISTER_CONTEXT = "/register";
+    public static final String LOGIN_CONTEXT = "/login";
     public static final Database db = new Database();
 
     public static void main(String[] args) throws IOException{
@@ -22,6 +23,7 @@ public class Server {
         final HttpServer httpServer = HttpServer.create(new InetSocketAddress(InetAddress.getByName(ADDR_NAME), PORT), BACKLOG);
         httpServer.createContext(BASE_CONTEXT, new BaseHandler());
         httpServer.createContext(REGISTER_CONTEXT, new RegisterHandler());
+        httpServer.createContext(LOGIN_CONTEXT, new LoginHandler());
         httpServer.setExecutor(null); // allow default executor to be created
         System.out.println("Server starting...");
         httpServer.start();
