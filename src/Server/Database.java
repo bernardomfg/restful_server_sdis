@@ -4,15 +4,13 @@ package Server;/*
 * @version 0.1.0
 */
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class Database {
+    private final String SHUTDOWN_MESSAGE = "The Server will now shutdown.";
     private Connection conn = null;
     private Statement stmt = null;
-    private final String SHUTDOWN_MESSAGE = "The Server will now shutdown.";
 
 
     public Database() {
@@ -160,8 +158,28 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
+    public ArrayList<String> getUserFile(String username) {
+        String sql_select;
+        sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = " +
+                username + ")";
+        try {
+            openConnection();
+            ResultSet results = this.stmt.executeQuery(sql_select);
+            ArrayList<String> fileList = new ArrayList<>();
+            while (results.next()) {
+                fileList.add(results.getString("fileName"));
+            }
+            return fileList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        return null;
+    }
+
     private void createUserFileTable() {
-        String sql_create = "CREATE TABLE IF NOT EXISTS File(username VARCHAR, idFile INTEGER, permissions INTEGER NOT NULL, UNIQUE(username,idFile), FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE , FOREIGN KEY (idFile) REFERENCES File(idFile) ON DELETE CASCADE, CHECK (permission >= 0 AND permission <= 1));";
+        String sql_create = "CREATE TABLE IF NOT EXISTS UserFile(username VARCHAR, idFile INTEGER, permission " +
+                "INTEGER NOT NULL, UNIQUE(username,idFile), FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE , FOREIGN KEY (idFile) REFERENCES File(idFile) ON DELETE CASCADE, CHECK (permission >= 0 AND permission <= 1));";
         /*
          * 0 - Editing permissions - User (Read/Write)
          * 1 - Removing permissions - Owner (User + Delete file)

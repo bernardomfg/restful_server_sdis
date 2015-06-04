@@ -16,6 +16,7 @@ public class Server {
     public static final String BASE_CONTEXT = "/";
     public static final String REGISTER_CONTEXT = "/register";
     public static final String LOGIN_CONTEXT = "/login";
+    public static final String LIST_CONTEXT = "/list";
     public static final Database db = new Database();
 
     public static void main(String[] args) throws IOException{
@@ -24,6 +25,7 @@ public class Server {
         httpServer.createContext(BASE_CONTEXT, new BaseHandler());
         httpServer.createContext(REGISTER_CONTEXT, new RegisterHandler());
         httpServer.createContext(LOGIN_CONTEXT, new LoginHandler());
+        httpServer.createContext(LIST_CONTEXT, new ListHandler());
         httpServer.setExecutor(null); // allow default executor to be created
         System.out.println("Server starting...");
         httpServer.start();

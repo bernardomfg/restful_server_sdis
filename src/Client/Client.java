@@ -16,7 +16,9 @@ class Client {
     public static void main(String[] args) throws Exception {
 
         baseURL = new URL("http://localhost:8000/");
-       //commented out for testing
+        //register("dusty", "cenas", "email@email");
+        retrieveFileList();
+        //commented out for testing
 
        /*
         // Local variable
@@ -87,7 +89,6 @@ class Client {
             }
         } while (swValue != 4);
         */
-        register("dusty", "cenas", "email@email");
     }
 
     public static void register(String username, String password, String email)
@@ -129,6 +130,34 @@ class Client {
             if (in != null)
                 connection.disconnect();
         }
+    }
+
+    public static void retrieveFileList() throws Exception {
+        URL registerURL = new URL(baseURL, "list");
+        HttpURLConnection connection = (HttpURLConnection) registerURL
+                .openConnection();
+        connection.setRequestMethod("GET");
+        //connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("username", "dusty");
+        /*
+        JSONObject msg = new JSONObject();
+        msg.put("username", "dbones");
+        msg = new JSONObject().put("list files", msg);
+        System.out.println(msg);
+
+        OutputStreamWriter out = new OutputStreamWriter(
+                connection.getOutputStream());
+
+        out.write(msg.toString());
+        out.close();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(
+                connection.getInputStream()));
+*/
+        String resp = connection.getResponseMessage();
+
+        System.out.println(resp);
+
     }
 
     public void login(String username, String password) throws Exception {
@@ -274,33 +303,5 @@ class Client {
             if (in != null)
                 connection.disconnect();
         }
-    }
-
-    public void retrieveFileList() throws Exception {
-        URL registerURL = new URL(baseURL, "list");
-        HttpURLConnection connection = (HttpURLConnection) registerURL
-                .openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Content-Type", "application/json");
-        JSONObject msg = new JSONObject();
-        msg.put("list", "dbones");
-        msg = new JSONObject().put("list files", msg);
-        System.out.println(msg);
-
-        OutputStreamWriter out = new OutputStreamWriter(
-                connection.getOutputStream());
-
-        out.write(msg.toString());
-        out.close();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                connection.getInputStream()));
-
-        String resp;
-        while ((resp = in.readLine()) != null) {
-            System.out.println(resp);
-        }
-        in.close();
     }
 }
