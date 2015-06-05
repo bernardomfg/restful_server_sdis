@@ -1,3 +1,5 @@
+package Client;
+
 
 public class Init {
 	public String username;

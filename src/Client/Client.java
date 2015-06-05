@@ -89,6 +89,7 @@ class Client {
             }
         } while (swValue != 4);
         */
+        register("dusty", "cenas", "email@email");
     }
 
     public static void register(String username, String password, String email)
@@ -219,15 +220,55 @@ class Client {
         }
     }
 
-    public void upload() throws Exception {
+    public static void upload(String filePath) throws Exception {
         URL uploadURL = new URL(baseURL, "upload");
         HttpURLConnection connection = (HttpURLConnection) uploadURL
                 .openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        BufferedReader br = null;
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+        String file  = ""; // Encrypt file
+        filePath = filePath.replace("\\", "/");
+        String splitString[] = filePath.split("/");
+        String fileName = splitString[splitString.length-1];
+
+        try {
+            String sCurrentLine;
+
+            br = new BufferedReader(new FileReader(filePath));
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                file += sCurrentLine;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+
+        JSONObject msg = new JSONObject();
+        msg = new JSONObject().put("fileName", fileName);//String com a todos os ficheiro do utilizador
+        msg.put("file", file);
+        out = new OutputStreamWriter(connection.getOutputStream());
+        System.out.println(msg);
+
+        out.write(file);
+        out.close();
 
         if (connection.getResponseCode() == 200) {
-
+            in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            System.out.println(in.readLine());
         }
     }
 
