@@ -165,7 +165,7 @@ class Client {
 
     }
 
-    public void login(String username, String password) throws Exception {
+    public static void login(String username, String password) throws Exception {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -179,6 +179,7 @@ class Client {
             msg.put("username", username);
             msg.put("password", password);
             msg = new JSONObject().put("login", msg);
+
 
             out = new OutputStreamWriter(connection.getOutputStream());
 

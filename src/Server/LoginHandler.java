@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import java.io.*;
 
+import static Server.Server.db;
+
 /**
  * Created by Bernardo on 04-06-2015.
  */
@@ -34,7 +36,42 @@ public class LoginHandler implements HttpHandler {
         OutputStream responseBody = null;
 
         if (method.equals("POST")){
+            if (requestHeaders.getFirst("Content-type").equals("application/json")){
+                try{
+                    jsonRequest = new JSONObject(bfBody.readLine());
+                    username = jsonRequest.getJSONObject("registration").get("username").toString();
+                    password = jsonRequest.getJSONObject("registration").get("password").toString();
 
+                    if (db.checkUser(username)){
+                        if (db.validateLogin(username, password)){
+                            jsonResponse = new JSONObject();
+                            jsonResponse.put("status", "success");
+                            jsonResponse = new JSONObject().put("registration", jsonResponse);
+
+                            responseHeaders.set("Content-Type", "application/json");
+                            httpExchange.sendResponseHeaders(200, jsonResponse.toString().length());
+                            responseBody = httpExchange.getResponseBody();
+                            responseBody.write(jsonResponse.toString().getBytes());
+                            responseBody.close();
+                        }
+                        else{
+                            //TODO: "wrong password"
+                        }
+
+                    }
+                    else{
+                        //TODO: "name doesnt exist"
+                    }
+
+
+                }catch (Exception e){
+                    System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                    //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
+                    //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+                }
+
+            }
         }
         else {
             System.err.println("ERROR: login requires POST method");
