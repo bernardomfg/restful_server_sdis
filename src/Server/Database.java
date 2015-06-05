@@ -160,8 +160,8 @@ public class Database {
 
     public ArrayList<String> getUserFile(String username) {
         String sql_select;
-        sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = " +
-                username + ")";
+        sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = '" +
+                username + "')";
         try {
             openConnection();
             ResultSet results = this.stmt.executeQuery(sql_select);

@@ -64,7 +64,7 @@ public class RegisterHandler implements HttpHandler {
                 }
             }
         } else {
-            System.out.println("ERROR: registration requires POST method");
+            System.err.println("ERROR: registration requires POST method");
             httpExchange.sendResponseHeaders(405, 0);
         }
     }
