@@ -460,6 +460,7 @@ class Client {
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
+            msg.put("username", username);
             msg.put("filename", file);
             msg = new JSONObject().put("delete", msg);
 

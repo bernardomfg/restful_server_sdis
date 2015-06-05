@@ -240,22 +240,47 @@ public class Database {
         closeConnection();
         return passwordOK;
     }
-    public void removeFile(String filename) throws SQLException {
+    public void deleteFile(String username, String filename) throws SQLException {
         openConnection();
         StringBuilder select = new StringBuilder();
-        StringBuilder delete = new StringBuilder();
+        ArrayList<Integer> ids = new ArrayList<>();
         String result = "";
-        String file_id;
-        /* PERMISSIONS */
-        select.append("SELECT idFIle FROM File WHERE filemane = '" + filename + "';");
-        file_id = select.toString();
-
-
+        select.append("SELECT idFile FROM File WHERE filemane = '" + filename + "';");
+        result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
+        while(rs.next()){
+            ids.add(rs.getInt("idFile"));
+        }
+        deleteFileByPermissions(username, ids);
+        while(!ids.isEmpty()){
+            StringBuilder delete = new StringBuilder();
+            String str_delete = "";
+            delete.append("DELETE FROM File WHERE username = '" + username + "';");
+            str_delete = delete.toString();
+            ResultSet res = this.stmt.executeQuery(str_delete);
+        }
         closeConnection();
     }
-    //db.removeFile(filenam
-
+    public void deleteFileByPermissions(String username, ArrayList<Integer> list) throws SQLException {
+        openConnection();
+        StringBuilder select = new StringBuilder();
+        String result = "";
+        select.append("SELECT idFile FROM UserFile WHERE username = '" + username + "' AND permissions = 1;");
+        result = select.toString();
+        ResultSet rs = this.stmt.executeQuery(result);
+        while(rs.next()){
+            for(int i = 0; i < list.size(); i++){
+                if(list.get(i).equals(rs.getInt("idFile"))){
+                    StringBuilder delete = new StringBuilder();
+                    String str_delete = "";
+                    delete.append("DELETE FROM UserFile WHERE idFile = '" + list.get(i) + "';");
+                    str_delete = delete.toString();
+                    ResultSet res = this.stmt.executeQuery(str_delete);
+                }
+            }
+        }
+        closeConnection();
+    }
 
     private void createTables() {
         openConnection();
