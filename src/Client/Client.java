@@ -94,7 +94,6 @@ class Client {
     }
 
     private static void userMenu() throws Exception {
-        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -129,7 +128,6 @@ class Client {
 
 
     private static void firstMenu() throws Exception {
-        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -190,7 +188,7 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
-        baseURL = new URL("http://localhost:8000");
+        baseURL = new URL("95.136.120.225:8000");
         upload("C:\\Users\\Bernardo\\hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
