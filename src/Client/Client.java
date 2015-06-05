@@ -3,6 +3,8 @@ package Client;
 import Utils.Utils;
 import org.json.JSONObject;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -189,12 +191,12 @@ class Client {
     public static void main(String[] args) throws Exception {
 
         baseURL = new URL("http://localhost:8000/");
-       // upload("hue.txt");
+        upload("hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
         // register("dsa", "cenas", "email@email");
         //register("duwesty", "cenas", "email@email");
-        firstMenu();
+        //firstMenu();
     }
 
     public static String md5Encode(String pw) throws NoSuchAlgorithmException {
@@ -334,12 +336,29 @@ class Client {
             msg.put("filename", new File(filePath).getName());
             msg.put("path", filePath);
             msg.put("version", Utils.getFileID(filePath));
-            msg=new JSONObject().put("upload", msg);
+            msg = new JSONObject().put("upload", msg);
             out = new OutputStreamWriter(connection.getOutputStream());
             System.out.println(msg);
 
             out.write(msg.toString());
             out.close();
+                SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9090);
+
+                FileInputStream fis = new FileInputStream(filePath);
+
+                OutputStreamWriter osw = new OutputStreamWriter(sslSocket.getOutputStream());
+                osw.flush();
+                byte[] buffer = new byte[sslSocket.getSendBufferSize()];
+                int i = 0;
+                while ((i = fis.read(buffer)) > -1) {
+                    osw.write(String.valueOf(buffer), 0, i);
+                }
+
+                osw.close();
+                fis.close();
+                sslSocket.close();
+
 
             if (connection.getResponseCode() == 200) {
                 in = new BufferedReader(new InputStreamReader(

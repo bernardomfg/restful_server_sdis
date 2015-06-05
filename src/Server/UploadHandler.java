@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 import java.io.*;
 
-import static Server.Server.db;
-
 public class UploadHandler implements HttpHandler {
 
     @Override
@@ -36,6 +34,7 @@ public class UploadHandler implements HttpHandler {
         if (method.equals("PUT")) {
             if (requestHeaders.getFirst("Content-Type").equals("application/json")) {
                 try {
+                    /*
                     jsonRequest = new JSONObject(bfBody.readLine());
                     username = jsonRequest.getJSONObject("upload").get("username").toString();
                     filename = jsonRequest.getJSONObject("upload").get("filename").toString();
@@ -57,7 +56,8 @@ public class UploadHandler implements HttpHandler {
                     responseBody.close();
 
                     //TODO: receive file
-
+*/
+                    new UploadThread(httpExchange).run();
                 } catch (Exception e) {
                     System.err.println(e.getClass().getName() + ": " + e.getMessage());
                     e.printStackTrace();
