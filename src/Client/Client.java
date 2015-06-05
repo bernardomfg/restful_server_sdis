@@ -89,7 +89,11 @@ class Client {
             }
         } while (swValue != 4);
         */
-        register("dusty", "cenas", "email@email");
+        register("asdwr", "cenas", "email@email");
+       // register("asd", "cenas", "email@email");
+       // register("dsa", "cenas", "email@email");
+        //register("duwesty", "cenas", "email@email");
+
     }
 
     public static void register(String username, String password, String email)

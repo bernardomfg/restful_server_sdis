@@ -45,9 +45,10 @@ public class Database {
         }
     }
 
-    public void insertUsers(String username, String password, String email) {
+    public void insertUsers(String username, String password, String email) throws SQLException {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
+        String sql_result = "";
         sql_builder.append("INSERT INTO User (username, password, email) VALUES('");
         sql_builder.append(username);
         sql_builder.append("', '");
@@ -55,7 +56,7 @@ public class Database {
         sql_builder.append("', '");
         sql_builder.append(email);
         sql_builder.append("');");
-        String sql_result = sql_builder.toString();
+        sql_result = sql_builder.toString();
         System.out.println(sql_result);
 
         try {
@@ -75,7 +76,7 @@ public class Database {
     }
 
     private void createUserTable() {
-        String sql_create = "CREATE TABLE IF NOT EXISTS User(username varchar(50) PRIMARY KEY, email varchar(255) NOT NULL, password varchar(255))";
+        String sql_create = "CREATE TABLE IF NOT EXISTS User(username varchar(50) PRIMARY KEY, password varchar(255), email varchar(255) NOT NULL UNIQUE);";
 
         try {
             this.stmt.executeUpdate(sql_create);
@@ -195,6 +196,23 @@ public class Database {
         }
         System.out.println("UserFile table created!");
     }
+
+    public boolean checkUser(String username) throws SQLException {
+        StringBuilder select = new StringBuilder();
+        String result= "";
+        select.append("SELECT username FROM User WHERE username = '" + username + ";");
+        result = select.toString();
+        ResultSet rs = this.stmt.executeQuery(result);
+        return rs.next();
+    }
+    /*public boolean validateRegister(String username, String email) throws SQLException {
+        StringBuilder select = new StringBuilder();
+        String sql_result = "", result= "";
+        select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = " + password + ";");
+        result = select.toString();
+        ResultSet rs = this.stmt.executeQuery(result);
+        return rs.next();
+    }*/
 
 
     private void createTables() {

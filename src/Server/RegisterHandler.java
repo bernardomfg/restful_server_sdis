@@ -44,6 +44,7 @@ public class RegisterHandler implements HttpHandler {
                     password = jsonRequest.getJSONObject("registration").get("password").toString();
                     email = jsonRequest.getJSONObject("registration").get("email").toString();
 
+
                     db.insertUsers(username, password, email);
 
                     jsonResponse = new JSONObject();
