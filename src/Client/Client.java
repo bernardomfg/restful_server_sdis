@@ -122,8 +122,7 @@ class Client {
                     System.out.println("Username: ");
                     username = s.next();
                     System.out.println("Password: ");
-                    password = s.next();
-                    //TODO Encrypt password
+                    password = s.next(); //password encoding done in register and login functions;
                     System.out.println("Email: ");
                     email = s.next();
                     register(username,password,email);
@@ -134,11 +133,11 @@ class Client {
 
                     System.out.println("Username: ");
 
-                    //TODO CHECK IF USERNAME EXISTS
+                    //TODO CHECK IF USERNAME EXISTS -> done in login function
                     username = s.next();
                     System.out.println("Password: ");
                     login(username,password);
-                    //TODO CHECK IF password matches EXISTS
+                    //TODO CHECK IF password matches EXISTS -> also done in login function
                     password = s.next();
                     if (login_checked == true) {
                         //TODO If loged in with sucess, USer Menu
@@ -152,17 +151,32 @@ class Client {
                     System.out.println("Invalid selection");
                     break; // This break is not really necessary
             }
-        } while (swValue != 3);
+        } while (swValue != 4);
 
-        // register("asdwr", "cenas", "email@email");
-        // register("asd", "cenas", "email@email");
-        // register("dsa", "cenas", "email@email");
+        register("asdwr", "cenas", "email@email");
+       // register("asd", "cenas", "email@email");
+       // register("dsa", "cenas", "email@email");
         //register("duwesty", "cenas", "email@email");
 
     }
 
     public static void main(String[] args) throws Exception {
         firstMenu();
+    }
+
+    public static String md5Encode(String pw) throws NoSuchAlgorithmException {
+
+        //code found on:
+        //http://www.avajava.com/tutorials/lessons/how-do-i-generate-an-md5-digest-for-a-string.html
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(pw.getBytes());
+        byte[] digest = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+
+        return sb.toString();
     }
 
     public static void register(String username, String password, String email)
@@ -178,6 +192,7 @@ class Client {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
+            password = md5Encode(password);
             msg.put("username", username);
             msg.put("password", password);
             msg.put("email", email);
@@ -244,6 +259,7 @@ class Client {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
+            password = md5Encode(password);
             JSONObject msg = new JSONObject();
             msg.put("username", username);
             msg.put("password", password);
