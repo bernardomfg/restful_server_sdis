@@ -5,6 +5,9 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Scanner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 class Client {
@@ -12,15 +15,85 @@ class Client {
     private static boolean login_checked = false;
     private static String username;
     private static String password;
+    private static String email;
 
-    public static void main(String[] args) throws Exception {
-
+    private static void manageFilesMenu() throws Exception{
         baseURL = new URL("http://localhost:8000/");
-        //register("dusty", "cenas", "email@email");
-        retrieveFileList();
-        //commented out for testing
+        // Local variable
+        int swValue;
+        do {
+            // Display menu graphics
+            System.out.println("===================================");
+            System.out.println("|         Manage My Files         |");
+            System.out.println("===================================");
+            System.out.println("| Options:                        |");
+            System.out.println("|        1. Upload File           |");
+            System.out.println("|        2. List Existent Files   |"); //list files, Permissions, Remove files
+            System.out.println("|        3. Edit File Permissions |");
+            System.out.println("|        4. Delete File           |");
+            System.out.println("|        5. Exit                  |");
+            System.out.println("===================================");
+            swValue = Keyin.inInt(" Select option: ");
 
-       /*
+            Scanner s = new Scanner(System.in);
+            switch (swValue) {
+                case 1:
+
+                    break;
+                case 2:
+
+                    //Don't even know what this is
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                default:
+                    System.out.println("Invalid selection");
+                    break; // This break is not really necessary
+            }
+        } while (swValue != 5);
+    }
+
+    private static void usertMenu () throws Exception {
+        baseURL = new URL("http://localhost:8000/");
+        // Local variable
+        int swValue;
+        do {
+            // Display menu graphics
+            System.out.println("================================");
+            System.out.println("|         User Menu            |");
+            System.out.println("================================");
+            System.out.println("| Options:                     |");
+            System.out.println("|        1. Manage My Files    |"); //list files, Permissions, Remove files
+            System.out.println("|        2. Log                |");
+            System.out.println("|        3. Exit               |");
+            System.out.println("================================");
+            swValue = Keyin.inInt(" Select option: ");
+
+            Scanner s = new Scanner(System.in);
+            switch (swValue) {
+                case 1:
+                   manageFilesMenu();
+                    break;
+                case 2:
+                    System.out.println("LOG");
+                    //Don't even know what this is
+                    break;
+                case 3:
+                    break;
+                default:
+                    System.out.println("Invalid selection");
+                    break; // This break is not really necessary
+            }
+        } while (swValue != 3);
+    }
+
+
+    private static void firstMenu () throws Exception {
+        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -29,10 +102,9 @@ class Client {
             System.out.println("|        Client Menu           |");
             System.out.println("================================");
             System.out.println("| Options:                     |");
-            System.out.println("|        1. Login              |");
-            System.out.println("|        2. Change Permissions |");
-            System.out.println("|        3. Log                |");
-            System.out.println("|        4. Exit               |");
+            System.out.println("|        1. Register           |");
+            System.out.println("|        2. Login              |");
+            System.out.println("|        3. Exit               |");
             System.out.println("================================");
             swValue = Keyin.inInt(" Select option: ");
 
@@ -43,57 +115,54 @@ class Client {
             //db.password  <- password
 
             // Switch construct
-
+            Scanner s = new Scanner(System.in);
             switch (swValue) {
                 case 1:
+                    System.out.println("REGISTER");
+                    System.out.println("Username: ");
+                    username = s.next();
+                    System.out.println("Password: ");
+                    password = s.next();
+                    //TODO Encrypt password
+                    System.out.println("Email: ");
+                    email = s.next();
+                    register(username,password,email);
+                    break;
+                case 2:
                     System.out.println("LOGIN");
                     //METHOD TO ASK FOR CREDENTIALS AND TRY TO LOGIN FROM DB
-                    Scanner s = new Scanner(System.in);
+
                     System.out.println("Username: ");
 
                     //TODO CHECK IF USERNAME EXISTS
                     username = s.next();
-
-                    if (true) {
-                        System.out.println("Password: ");
-                        //TODO CHECK IF password matches EXISTS
-                        //s.next()
-                        password = s.next();
-
-                    }
-
-                    break;
-                case 2:
+                    System.out.println("Password: ");
+                    login(username,password);
+                    //TODO CHECK IF password matches EXISTS
+                    password = s.next();
                     if (login_checked == true) {
-
-
+                        //TODO If loged in with sucess, USer Menu
                     } else {
                         System.out.println("Please login first.");
                     }
                     break;
                 case 3:
-                    if (login_checked == true) {
-
-
-                    } else {
-                        System.out.println("Please login first.");
-                    }
-                    break;
-                case 4:
-
-
                     break;
                 default:
                     System.out.println("Invalid selection");
                     break; // This break is not really necessary
             }
-        } while (swValue != 4);
-        */
-        register("asdwr", "cenas", "email@email");
-       // register("asd", "cenas", "email@email");
-       // register("dsa", "cenas", "email@email");
+        } while (swValue != 3);
+
+        // register("asdwr", "cenas", "email@email");
+        // register("asd", "cenas", "email@email");
+        // register("dsa", "cenas", "email@email");
         //register("duwesty", "cenas", "email@email");
 
+    }
+
+    public static void main(String[] args) throws Exception {
+        firstMenu();
     }
 
     public static void register(String username, String password, String email)
