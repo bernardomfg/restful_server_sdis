@@ -94,6 +94,7 @@ class Client {
     }
 
     private static void userMenu() throws Exception {
+        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -128,6 +129,7 @@ class Client {
 
 
     private static void firstMenu() throws Exception {
+        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -169,6 +171,7 @@ class Client {
                     username = s.next();
                     System.out.println("Password: ");
                     password = s.next();
+                    password = md5Encode(password);
                     login(username,password);
                     login_checked = true; //TODO Check login return, or server sucess message
                     if (login_checked == true) {
@@ -188,8 +191,9 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
-        baseURL = new URL("95.136.120.225:8000");
-        upload("C:\\Users\\Bernardo\\hue.txt");
+        baseURL = new URL("http://localhost:8000/");
+        username="dusty";
+        upload("test/hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
         // register("dsa", "cenas", "email@email");
@@ -359,11 +363,7 @@ class Client {
                 sslSocket.close();
 
 
-            if (connection.getResponseCode() == 200) {
-                in = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                System.out.println(in.readLine());
-            }/*
+            /*
             String file = ""; // Encrypt file
             filePath = filePath.replace("\\", "/");
             String splitString[] = filePath.split("/");

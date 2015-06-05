@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_sdis_proj_2" default="compile.module.sdis_proj_2">
+  <dirname property="module.sdis_proj_2.basedir" file="${ant.file.module_sdis_proj_2}"/>
+  
+  <property name="module.jdk.home.sdis_proj_2" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.sdis_proj_2" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.sdis_proj_2" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.sdis_proj_2" value="-encoding UTF-8 -source 8 ${compiler.args}"/>
+  
+  <property name="sdis_proj_2.output.dir" value="${module.sdis_proj_2.basedir}/out/production/sdis_proj_2"/>
+  <property name="sdis_proj_2.testoutput.dir" value="${module.sdis_proj_2.basedir}/out/test/sdis_proj_2"/>
+  
+  <path id="sdis_proj_2.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="sdis_proj_2.module.production.classpath">
+    <path refid="${module.jdk.classpath.sdis_proj_2}"/>
+    <path refid="library.sqlite-jdbc-3.8.10.1.classpath"/>
+  </path>
+  
+  <path id="sdis_proj_2.runtime.production.module.classpath">
+    <pathelement location="${sdis_proj_2.output.dir}"/>
+    <path refid="library.sqlite-jdbc-3.8.10.1.classpath"/>
+  </path>
+  
+  <path id="sdis_proj_2.module.classpath">
+    <path refid="${module.jdk.classpath.sdis_proj_2}"/>
+    <pathelement location="${sdis_proj_2.output.dir}"/>
+    <path refid="library.sqlite-jdbc-3.8.10.1.classpath"/>
+  </path>
+  
+  <path id="sdis_proj_2.runtime.module.classpath">
+    <pathelement location="${sdis_proj_2.testoutput.dir}"/>
+    <pathelement location="${sdis_proj_2.output.dir}"/>
+    <path refid="library.sqlite-jdbc-3.8.10.1.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.sdis_proj_2">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.sdis_proj_2">
+    <patternset refid="excluded.from.module.sdis_proj_2"/>
+  </patternset>
+  
+  <path id="sdis_proj_2.module.sourcepath">
+    <dirset dir="${module.sdis_proj_2.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.sdis_proj_2" depends="compile.module.sdis_proj_2.production,compile.module.sdis_proj_2.tests" description="Compile module sdis_proj_2"/>
+  
+  <target name="compile.module.sdis_proj_2.production" depends="register.custom.compilers" description="Compile module sdis_proj_2; production classes">
+    <mkdir dir="${sdis_proj_2.output.dir}"/>
+    <javac2 destdir="${sdis_proj_2.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.sdis_proj_2}/javac">
+      <compilerarg line="${compiler.args.sdis_proj_2}"/>
+      <bootclasspath refid="sdis_proj_2.module.bootclasspath"/>
+      <classpath refid="sdis_proj_2.module.production.classpath"/>
+      <src refid="sdis_proj_2.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.sdis_proj_2"/>
+    </javac2>
+    
+    <copy todir="${sdis_proj_2.output.dir}">
+      <fileset dir="${module.sdis_proj_2.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.sdis_proj_2.tests" depends="register.custom.compilers,compile.module.sdis_proj_2.production" description="compile module sdis_proj_2; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.sdis_proj_2" description="cleanup module">
+    <delete dir="${sdis_proj_2.output.dir}"/>
+    <delete dir="${sdis_proj_2.testoutput.dir}"/>
+  </target>
+</project>
