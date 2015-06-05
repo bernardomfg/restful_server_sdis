@@ -49,7 +49,7 @@ public class Database {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
         String sql_result = "";
-        sql_builder.append("INSERT INTO User (username, password, email) VALUES('");
+        sql_builder.append("INSERT OR IGNORE INTO User (username, password, email) VALUES('");
         sql_builder.append(username);
         sql_builder.append("', '");
         sql_builder.append(password);
@@ -88,10 +88,10 @@ public class Database {
         System.out.println("User table created!");
     }
 
-    public void insertFiles(String filename, String path, int version) {
+    public void insertFiles(String filename, String path, String version) {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
-        sql_builder.append("INSERT INTO File (filename, path, version) VALUES('");
+        sql_builder.append("INSERT OR IGNORE INTO File (filename, path, version) VALUES('");
         sql_builder.append(filename);
         sql_builder.append("', '");
         sql_builder.append(path);
@@ -117,8 +117,25 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
+    public int getFileID(String filename) {
+        String sql_select;
+        sql_select = "SELECT idFile FROM File WHERE filename = '" +
+                filename + "'";
+        try {
+            openConnection();
+            ResultSet results = this.stmt.executeQuery(sql_select);
+            closeConnection();
+            return results.getInt("idFile");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        return -1;
+    }
+
     private void createFileTable() {
-        String sql_create = "CREATE TABLE IF NOT EXISTS File(idFIle INTEGER PRIMARY KEY  AUTOINCREMENT, filename varchar(50) NOT NULL, path varchar(255) NOT NULL, version INTEGER NOT NULL);";
+        String sql_create = "CREATE TABLE IF NOT EXISTS File(idFIle INTEGER PRIMARY KEY  AUTOINCREMENT, filename " +
+                "varchar(50) NOT NULL, path varchar(255) NOT NULL, version varchar(255) NOT NULL);";
 
         try {
             this.stmt.executeUpdate(sql_create);
@@ -133,7 +150,7 @@ public class Database {
     public void insertUserFile(String username, int idFile, int permission) {
         openConnection();
         StringBuilder sql_builder = new StringBuilder();
-        sql_builder.append("INSERT INTO UserFile (idUser, idFile, permission) VALUES('");
+        sql_builder.append("INSERT INTO UserFile (username, idFile, permission) VALUES('");
         sql_builder.append(username);
         sql_builder.append("', '");
         sql_builder.append(idFile);
@@ -199,15 +216,16 @@ public class Database {
 
     public boolean checkUser(String username) throws SQLException {
         StringBuilder select = new StringBuilder();
-        String result= "";
+        String result = "";
         select.append("SELECT username FROM User WHERE username = '" + username + ";");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
         return rs.next();
     }
+
     public boolean validateLogin(String username, String password) throws SQLException {
         StringBuilder select = new StringBuilder();
-        String sql_result = "", result= "";
+        String sql_result = "", result = "";
         select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = " + password + ";");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);

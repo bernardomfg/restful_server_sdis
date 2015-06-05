@@ -1,13 +1,14 @@
 package Client;
 
+import Utils.Utils;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
 
 
 class Client {
@@ -17,9 +18,9 @@ class Client {
     private static String password;
     private static String email;
 
-    private static void manageFilesMenu() throws Exception{
-        baseURL = new URL("http://localhost:8000/");
+    private static void manageFilesMenu() throws Exception {
         // Local variable
+
         int swValue;
         do {
             // Display menu graphics
@@ -57,7 +58,7 @@ class Client {
         } while (swValue != 5);
     }
 
-    private static void usertMenu () throws Exception {
+    private static void usertMenu() throws Exception {
         baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
@@ -76,7 +77,7 @@ class Client {
             Scanner s = new Scanner(System.in);
             switch (swValue) {
                 case 1:
-                   manageFilesMenu();
+                    manageFilesMenu();
                     break;
                 case 2:
                     System.out.println("LOG");
@@ -92,7 +93,7 @@ class Client {
     }
 
 
-    private static void firstMenu () throws Exception {
+    private static void firstMenu() throws Exception {
         baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
@@ -125,7 +126,7 @@ class Client {
                     password = s.next(); //password encoding done in register and login functions;
                     System.out.println("Email: ");
                     email = s.next();
-                    register(username,password,email);
+                    register(username, password, email);
                     break;
                 case 2:
                     System.out.println("LOGIN");
@@ -136,7 +137,7 @@ class Client {
                     //TODO CHECK IF USERNAME EXISTS -> done in login function
                     username = s.next();
                     System.out.println("Password: ");
-                    login(username,password);
+                    login(username, password);
                     //TODO CHECK IF password matches EXISTS -> also done in login function
                     password = s.next();
                     if (login_checked == true) {
@@ -153,15 +154,20 @@ class Client {
             }
         } while (swValue != 4);
 
-        register("asdwr", "cenas", "email@email");
-       // register("asd", "cenas", "email@email");
-       // register("dsa", "cenas", "email@email");
-        //register("duwesty", "cenas", "email@email");
 
     }
 
     public static void main(String[] args) throws Exception {
-        firstMenu();
+
+        baseURL = new URL("http://localhost:8000/");
+        upload("hue.txt");
+        //register("asdwr", "cenas", "email@email");
+        // register("asd", "cenas", "email@email");
+        // register("dsa", "cenas", "email@email");
+        //register("duwesty", "cenas", "email@email");
+
+
+        //firstMenu();
     }
 
     public static String md5Encode(String pw) throws NoSuchAlgorithmException {
@@ -289,6 +295,62 @@ class Client {
         }
     }
 
+    public static void upload(String filePath) throws Exception {
+        URL uploadURL = new URL(baseURL, "upload");
+        HttpURLConnection connection = (HttpURLConnection) uploadURL
+                .openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/json");
+        BufferedReader br = null;
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            JSONObject msg = new JSONObject();
+            msg.put("username", "dusty");//TODO change back to username
+            msg.put("filename", new File(filePath).getName());
+            msg.put("path", filePath);
+            msg.put("version", Utils.getFileID(filePath));
+            msg=new JSONObject().put("upload", msg);
+            out = new OutputStreamWriter(connection.getOutputStream());
+            System.out.println(msg);
+
+            out.write(msg.toString());
+            out.close();
+
+            if (connection.getResponseCode() == 200) {
+                in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                System.out.println(in.readLine());
+            }/*
+            String file = ""; // Encrypt file
+            filePath = filePath.replace("\\", "/");
+            String splitString[] = filePath.split("/");
+            String fileName = splitString[splitString.length - 1];
+
+
+            String sCurrentLine;
+
+            br = new BufferedReader(new FileReader(filePath));
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                file += sCurrentLine;
+            }
+*/
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+
+    }
+
     public void download() throws Exception {
         URL downloadURL = new URL(baseURL, "download");
         HttpURLConnection connection = (HttpURLConnection) downloadURL
@@ -307,58 +369,6 @@ class Client {
                 fos.write(buffer, 0, len);
             }
 
-        }
-    }
-
-    public static void upload(String filePath) throws Exception {
-        URL uploadURL = new URL(baseURL, "upload");
-        HttpURLConnection connection = (HttpURLConnection) uploadURL
-                .openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("PUT");
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        BufferedReader br = null;
-        OutputStreamWriter out = null;
-        BufferedReader in = null;
-        String file  = ""; // Encrypt file
-        filePath = filePath.replace("\\", "/");
-        String splitString[] = filePath.split("/");
-        String fileName = splitString[splitString.length-1];
-
-        try {
-            String sCurrentLine;
-
-            br = new BufferedReader(new FileReader(filePath));
-
-            while ((sCurrentLine = br.readLine()) != null) {
-                file += sCurrentLine;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null)br.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-
-        JSONObject msg = new JSONObject();
-        msg = new JSONObject().put("fileName", fileName);//String com a todos os ficheiro do utilizador
-        msg.put("file", file);
-        out = new OutputStreamWriter(connection.getOutputStream());
-        System.out.println(msg);
-
-        out.write(file);
-        out.close();
-
-        if (connection.getResponseCode() == 200) {
-            in = new BufferedReader(new InputStreamReader(
-                    connection.getInputStream()));
-            System.out.println(in.readLine());
         }
     }
 
