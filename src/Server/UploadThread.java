@@ -20,6 +20,7 @@ public class UploadThread extends Thread {
 
     @Override
     public void run() {
+        System.out.println("starting new upThread");
 
         JSONObject jsonRequest, jsonResponse;
 
@@ -42,22 +43,28 @@ public class UploadThread extends Thread {
         OutputStream responseBody = null;
 
         try {
-            System.out.println("k");
             SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-            System.out.println("k");
             SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(9090);
-            System.out.println("k");
+            sslServerSocket.setReuseAddress(true);
 
-            SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
-
-
-            System.out.println("k");
 
             jsonRequest = new JSONObject(bfBody.readLine());
             username = jsonRequest.getJSONObject("upload").get("username").toString();
             filename = jsonRequest.getJSONObject("upload").get("filename").toString();
             path = jsonRequest.getJSONObject("upload").get("path").toString();
             version = jsonRequest.getJSONObject("upload").get("version").toString();
+
+            jsonResponse = new JSONObject();
+            jsonResponse.put("status", "success");
+            jsonResponse = new JSONObject().put("upload", jsonResponse);
+
+            responseHeaders.set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, jsonResponse.toString().length());
+            responseBody = exchange.getResponseBody();
+            responseBody.write(jsonResponse.toString().getBytes());
+            responseBody.close();
+
+            SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
 
             InputStream is = sslSocket.getInputStream();
             FileOutputStream fos = new FileOutputStream(filename);
