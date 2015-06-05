@@ -13,7 +13,7 @@ import static Server.Server.db;
 public class ListHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        JSONObject jsonRequest, jsonResponse;
+        JSONObject jsonResponse, jsonList;
 
         String username;
 
@@ -23,31 +23,24 @@ public class ListHandler implements HttpHandler {
         Headers requestHeaders;
         requestHeaders = httpExchange.getRequestHeaders();
 
-        InputStream inputStream;
-        inputStream = httpExchange.getRequestBody();
+        OutputStream responseBody;
 
-        BufferedReader bfBody = new BufferedReader(new InputStreamReader(inputStream));
-
-        Headers responseHeaders;
-        responseHeaders = httpExchange.getResponseHeaders();
-
-        OutputStream responseBody = null;
-
-        if (method.equals("GET")) {
+        if (method.equals("POST")) {
             if (requestHeaders.getFirst("Content-Type").equals("application/json")) {
                 try {
                     username = requestHeaders.getFirst("username").toString();
 
                     ArrayList<String> fileList = db.getUserFile(username);
 
-                    jsonResponse = new JSONObject();
-                    jsonResponse.put("status", "success");
+                    jsonResponse = new JSONObject().put("status", "success");
+                    jsonList = new JSONObject();
                     for (String s : fileList) {
-                        jsonResponse.put("file", s);
+                        jsonList.put("file", s);
                     }
+                    jsonResponse = new JSONObject().put("list", jsonResponse);
+                    jsonResponse.put("list", fileList);
                     System.out.println(jsonResponse);
 
-                    jsonResponse = new JSONObject().put("registration", jsonResponse);
                     httpExchange.sendResponseHeaders(200, jsonResponse.toString().length());
                     responseBody = httpExchange.getResponseBody();
                     responseBody.write(jsonResponse.toString().getBytes());
@@ -59,10 +52,11 @@ public class ListHandler implements HttpHandler {
                     //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
                     //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
-            } else {
-                System.out.println("ERROR: expected GET method");
-                httpExchange.sendResponseHeaders(405, 0);
+
             }
+        } else {
+            System.out.println("ERROR: expected POST method");
+            httpExchange.sendResponseHeaders(405, 0);
         }
     }
 }

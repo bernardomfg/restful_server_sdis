@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class Server {
-    public static final int PORT = 8080;
+    public static final int PORT = 9999;
     public static final String ADDR_NAME = "127.0.0.1";
     public static final String BASE_CONTEXT = "/";
     public static final String REGISTER_CONTEXT = "/register";
@@ -19,7 +19,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException{
 
-        HttpServer httpServer = HttpServer.create(new InetSocketAddress(ADDR_NAME,PORT), 0);
+        HttpServer httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext(BASE_CONTEXT, new BaseHandler());
         httpServer.createContext(REGISTER_CONTEXT, new RegisterHandler());
         httpServer.createContext(LOGIN_CONTEXT, new LoginHandler());
@@ -30,7 +30,6 @@ public class Server {
         httpServer.setExecutor(null); // allow default executor to be created
         System.out.println("Server starting...");
         httpServer.start();
-        System.out.println(httpServer.getAddress());
     }
 
 }

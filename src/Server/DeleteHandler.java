@@ -60,7 +60,7 @@ public class DeleteHandler  implements HttpHandler {
                 }
             }
         } else {
-            System.err.println("ERROR: upload requires DELETE method");
+            System.err.println("ERROR: delete requires DELETE method");
             httpExchange.sendResponseHeaders(405, 0);
         }
     }

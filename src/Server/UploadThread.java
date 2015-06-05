@@ -1,5 +1,6 @@
 package Server;
 
+import Utils.Utils;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.json.JSONObject;
@@ -20,7 +21,6 @@ public class UploadThread extends Thread {
 
     @Override
     public void run() {
-        System.out.println("starting new upThread");
 
         JSONObject jsonRequest, jsonResponse;
 
@@ -43,8 +43,13 @@ public class UploadThread extends Thread {
         OutputStream responseBody = null;
 
         try {
+            int port = 9000;
+            while (!Utils.portIsAvailable(port) && port < 9999) {
+                port++;
+            }
+            System.out.println("starting new upThread, using port "+port);
             SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-            SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(9090);
+            SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);
             sslServerSocket.setReuseAddress(true);
 
 
@@ -55,14 +60,16 @@ public class UploadThread extends Thread {
             version = jsonRequest.getJSONObject("upload").get("version").toString();
 
             jsonResponse = new JSONObject();
-            jsonResponse.put("status", "success");
+            jsonResponse.put("status", "ready");
+            jsonResponse.put("port", port);
             jsonResponse = new JSONObject().put("upload", jsonResponse);
 
             responseHeaders.set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, jsonResponse.toString().length());
             responseBody = exchange.getResponseBody();
             responseBody.write(jsonResponse.toString().getBytes());
-            responseBody.close();
+            responseBody.flush();
+            //responseBody.close();
 
             SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
 

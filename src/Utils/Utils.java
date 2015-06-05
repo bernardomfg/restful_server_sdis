@@ -2,6 +2,9 @@ package Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Random;
@@ -54,5 +57,27 @@ public class Utils {
     public static int getRandomInt(int range) {
         Random r = new Random();
         return r.nextInt(range);
+    }
+
+    public static Boolean portIsAvailable(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+            if (ss != null) try {
+                ss.close();
+            } catch (IOException e) {
+            }
+        }
+        return false;
     }
 }

@@ -60,16 +60,13 @@ class Client {
                     fileName = s.next();
                     String option, usernameToSearch, emailToSearch;
                     option = s.next();
-                    do{
+                    do {
                         System.out.println("Want to identify the user by username or email?: ");
 
-                        if(option.equals("username"))
-                        {
+                        if (option.equals("username")) {
                             System.out.println("Username: ");
                             usernameToSearch = s.next();
-                        }
-                        else if(option.equals("email"))
-                        {
+                        } else if (option.equals("email")) {
                             System.out.println("Email: ");
                             emailToSearch = s.next();
                         }
@@ -94,7 +91,6 @@ class Client {
     }
 
     private static void userMenu() throws Exception {
-        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -129,7 +125,6 @@ class Client {
 
 
     private static void firstMenu() throws Exception {
-        baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
         do {
@@ -143,12 +138,6 @@ class Client {
             System.out.println("|        3. Exit               |");
             System.out.println("================================");
             swValue = Keyin.inInt(" Select option: ");
-
-            // Init db = new Init();
-
-            // db.log <- devolve o log
-            //db.username <- username
-            //db.password  <- password
 
             // Switch construct
             Scanner s = new Scanner(System.in);
@@ -172,7 +161,7 @@ class Client {
                     System.out.println("Password: ");
                     password = s.next();
                     password = md5Encode(password);
-                    login(username,password);
+                    login(username, password);
                     login_checked = true; //TODO Check login return, or server sucess message
                     if (login_checked == true) {
                         userMenu();
@@ -191,8 +180,9 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
-        baseURL = new URL("http://localhost:8000/");
-        username="dusty";
+        baseURL = new URL("http://localhost:9999/");
+        username = "dusty";
+        //retrieveFileList(username);
         upload("test/hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
@@ -257,30 +247,34 @@ class Client {
     }
 
     public static void retrieveFileList(String username) throws Exception {
-        URL registerURL = new URL(baseURL, "list");
-        HttpURLConnection connection = (HttpURLConnection) registerURL
-                .openConnection();
-        connection.setRequestMethod("GET");
-        //connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("username", username);
-        /*
-        JSONObject msg = new JSONObject();
-        msg.put("username", "dbones");
-        msg = new JSONObject().put("list files", msg);
-        System.out.println(msg);
+        HttpURLConnection connection = null;
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+        try {
+            URL listURL = new URL(baseURL, "list");
+            connection = (HttpURLConnection) listURL.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("username", username);
 
-        OutputStreamWriter out = new OutputStreamWriter(
-                connection.getOutputStream());
-
-        out.write(msg.toString());
-        out.close();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                connection.getInputStream()));
-*/
-        String resp = connection.getResponseMessage();
-        //TODO PRINT FILE LIST
-        System.out.println(resp);
+            if (connection.getResponseCode() == 200) {
+                in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                String resp = connection.getResponseMessage();
+                System.out.println(resp);
+                //TODO PRINT FILE LIST
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null)
+                in.close();
+            if (out != null)
+                out.close();
+            if (in != null)
+                connection.disconnect();
+        }
 
     }
 
@@ -332,7 +326,9 @@ class Client {
         BufferedReader br = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
-
+        OutputStreamWriter osw = null;
+        FileInputStream fis = null;
+        SSLSocket sslSocket = null;
         try {
             JSONObject msg = new JSONObject();
             msg.put("username", username);//TODO change back to username
@@ -345,47 +341,33 @@ class Client {
 
             out.write(msg.toString());
             out.close();
+
+            if (connection.getResponseCode() == 200) {
+                String s = connection.getResponseMessage();
+                System.out.println(s);
+                JSONObject responseMessage = new JSONObject(s);
+                int port = responseMessage.getJSONObject("upload").getInt("port");
                 SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9090);
+                sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", port);
 
-                FileInputStream fis = new FileInputStream(filePath);
+                fis = new FileInputStream(filePath);
 
-                OutputStreamWriter osw = new OutputStreamWriter(sslSocket.getOutputStream());
-                osw.flush();
+                /*osw = new OutputStreamWriter(sslSocket.getOutputStream());
+                osw.flush();*/
                 byte[] buffer = new byte[sslSocket.getSendBufferSize()];
                 int i = 0;
                 while ((i = fis.read(buffer)) > -1) {
-                    osw.write(String.valueOf(buffer), 0, i);
+                    sslSocket.getOutputStream().write(buffer, 0, i);
                 }
-
-                osw.close();
-                fis.close();
-                sslSocket.close();
-
-
-            /*
-            String file = ""; // Encrypt file
-            filePath = filePath.replace("\\", "/");
-            String splitString[] = filePath.split("/");
-            String fileName = splitString[splitString.length - 1];
-
-
-            String sCurrentLine;
-
-            br = new BufferedReader(new FileReader(filePath));
-
-            while ((sCurrentLine = br.readLine()) != null) {
-                file += sCurrentLine;
             }
-*/
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (br != null) br.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            if (osw != null) osw.close();
+            if (fis != null) fis.close();
+            if (sslSocket != null) sslSocket.close();
+            if (br != null) br.close();
         }
 
 
