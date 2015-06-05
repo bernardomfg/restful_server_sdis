@@ -39,28 +39,31 @@ public class LoginHandler implements HttpHandler {
             if (requestHeaders.getFirst("Content-type").equals("application/json")){
                 try{
                     jsonRequest = new JSONObject(bfBody.readLine());
-                    username = jsonRequest.getJSONObject("registration").get("username").toString();
-                    password = jsonRequest.getJSONObject("registration").get("password").toString();
+                    username = jsonRequest.getJSONObject("login").get("username").toString();
+                    password = jsonRequest.getJSONObject("login").get("password").toString();
 
                     if (db.checkUser(username)){
                         if (db.validateLogin(username, password)){
                             jsonResponse = new JSONObject();
                             jsonResponse.put("status", "success");
-                            jsonResponse = new JSONObject().put("registration", jsonResponse);
+                            jsonResponse = new JSONObject().put("login", jsonResponse);
 
                             responseHeaders.set("Content-Type", "application/json");
                             httpExchange.sendResponseHeaders(200, jsonResponse.toString().length());
                             responseBody = httpExchange.getResponseBody();
                             responseBody.write(jsonResponse.toString().getBytes());
+                            System.out.println("sent response: " + jsonResponse);
                             responseBody.close();
                         }
                         else{
                             //TODO: "wrong password"
+                            System.out.println("wrong password");
                         }
 
                     }
                     else{
                         //TODO: "name doesnt exist"
+                        System.out.println("wrong username");
                     }
 
 
@@ -70,16 +73,11 @@ public class LoginHandler implements HttpHandler {
                     //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
                     //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
-
             }
         }
         else {
             System.err.println("ERROR: login requires POST method");
             httpExchange.sendResponseHeaders(405, 0);
         }
-
-
-
-
     }
 }

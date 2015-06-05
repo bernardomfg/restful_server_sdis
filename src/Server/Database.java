@@ -215,22 +215,41 @@ public class Database {
     }
 
     public boolean checkUser(String username) throws SQLException {
+        openConnection();
         StringBuilder select = new StringBuilder();
         String result = "";
-        select.append("SELECT username FROM User WHERE username = '" + username + ";");
+        select.append("SELECT username FROM User WHERE username = '"  + username + "';");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
+        closeConnection();
         return rs.next();
     }
 
     public boolean validateLogin(String username, String password) throws SQLException {
+        openConnection();
         StringBuilder select = new StringBuilder();
-        String sql_result = "", result = "";
-        select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = " + password + ";");
+        String result = "";
+        select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = '" + password + "';");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
+        closeConnection();
         return rs.next();
     }
+    public void removeFile(String filename) throws SQLException {
+        openConnection();
+        StringBuilder select = new StringBuilder();
+        StringBuilder delete = new StringBuilder();
+        String result = "";
+        String file_id;
+        /* PERMISSIONS */
+        select.append("SELECT idFIle FROM File WHERE filemane = '" + filename + "';");
+        file_id = select.toString();
+
+
+        ResultSet rs = this.stmt.executeQuery(result);
+        closeConnection();
+    }
+    //db.removeFile(filenam
 
 
     private void createTables() {

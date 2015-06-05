@@ -39,7 +39,7 @@ public class DeleteHandler  implements HttpHandler {
 
                     new File(filename).delete();
                     //TODO: complete this
-                    //db.removeUserFile();
+                    //db.removeUserFile(filename);
                     //db.removeFile(filename);
 
                     jsonResponse = new JSONObject();

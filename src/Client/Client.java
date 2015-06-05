@@ -20,7 +20,6 @@ class Client {
 
     private static void manageFilesMenu() throws Exception {
         // Local variable
-
         int swValue;
         do {
             // Display menu graphics
@@ -29,36 +28,69 @@ class Client {
             System.out.println("===================================");
             System.out.println("| Options:                        |");
             System.out.println("|        1. Upload File           |");
-            System.out.println("|        2. List Existent Files   |"); //list files, Permissions, Remove files
-            System.out.println("|        3. Edit File Permissions |");
-            System.out.println("|        4. Delete File           |");
-            System.out.println("|        5. Exit                  |");
+            System.out.println("|        2. Download File         |");
+            System.out.println("|        3. List Existent Files   |"); //list files, Permissions, Remove files
+            System.out.println("|        4. Edit File Permissions |");
+            System.out.println("|        5. Delete File           |");
+            System.out.println("|        6. Exit                  |");
             System.out.println("===================================");
             swValue = Keyin.inInt(" Select option: ");
 
             Scanner s = new Scanner(System.in);
             switch (swValue) {
                 case 1:
-
+                    System.out.println("Please insert the path to the desired file: ");
+                    String filePath;
+                    filePath = s.next();
+                    //TODO: CALL UPLOAD HANDLER WHEN FINISHED
                     break;
                 case 2:
-
-                    //Don't even know what this is
+                    //TODO DOWNLOAD ON CLIENT SIDE
                     break;
                 case 3:
+                    System.out.println(username + "owns all these files: ");
+                    //TODO PRINT LSIT
+                    retrieveFileList(username);
                     break;
                 case 4:
+                    System.out.println("Please insert the file name you want to edit permissions: ");
+                    String fileName;
+                    fileName = s.next();
+                    String option, usernameToSearch, emailToSearch;
+                    option = s.next();
+                    do{
+                        System.out.println("Want to identify the user by username or email?: ");
+
+                        if(option.equals("username"))
+                        {
+                            System.out.println("Username: ");
+                            usernameToSearch = s.next();
+                        }
+                        else if(option.equals("email"))
+                        {
+                            System.out.println("Email: ");
+                            emailToSearch = s.next();
+                        }
+                    } while ((!option.equals("username")) || (!option.equals("email")));
+                    //TODO HANDLER TO INSERT user ON UserFIle table
                     break;
                 case 5:
+                    //Print list
+                    System.out.println("Wich file you want to delete?: ");
+                    String fileToDelete;
+                    fileToDelete = s.next();
+                    //DELETE HANDLER
+                    break;
+                case 6:
                     break;
                 default:
                     System.out.println("Invalid selection");
                     break; // This break is not really necessary
             }
-        } while (swValue != 5);
+        } while (swValue != 7);
     }
 
-    private static void usertMenu() throws Exception {
+    private static void userMenu() throws Exception {
         baseURL = new URL("http://localhost:8000/");
         // Local variable
         int swValue;
@@ -68,7 +100,7 @@ class Client {
             System.out.println("|         User Menu            |");
             System.out.println("================================");
             System.out.println("| Options:                     |");
-            System.out.println("|        1. Manage My Files    |"); //list files, Permissions, Remove files
+            System.out.println("|        1. Manage My Files    |");
             System.out.println("|        2. Log                |");
             System.out.println("|        3. Exit               |");
             System.out.println("================================");
@@ -133,15 +165,14 @@ class Client {
                     //METHOD TO ASK FOR CREDENTIALS AND TRY TO LOGIN FROM DB
 
                     System.out.println("Username: ");
-
-                    //TODO CHECK IF USERNAME EXISTS -> done in login function
                     username = s.next();
                     System.out.println("Password: ");
-                    login(username, password);
-                    //TODO CHECK IF password matches EXISTS -> also done in login function
                     password = s.next();
+                    password = md5Encode(password);
+                    login(username,password);
+                    login_checked = true; //TODO Check login return, or server sucess message
                     if (login_checked == true) {
-                        //TODO If loged in with sucess, USer Menu
+                        userMenu();
                     } else {
                         System.out.println("Please login first.");
                     }
@@ -152,26 +183,21 @@ class Client {
                     System.out.println("Invalid selection");
                     break; // This break is not really necessary
             }
-        } while (swValue != 4);
-
-
+        } while (swValue != 3);
     }
 
     public static void main(String[] args) throws Exception {
 
         baseURL = new URL("http://localhost:8000/");
-        upload("hue.txt");
+       // upload("hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
         // register("dsa", "cenas", "email@email");
         //register("duwesty", "cenas", "email@email");
-
-
-        //firstMenu();
+        firstMenu();
     }
 
     public static String md5Encode(String pw) throws NoSuchAlgorithmException {
-
         //code found on:
         //http://www.avajava.com/tutorials/lessons/how-do-i-generate-an-md5-digest-for-a-string.html
         MessageDigest md = MessageDigest.getInstance("MD5");
@@ -181,7 +207,7 @@ class Client {
         for (byte b : digest) {
             sb.append(String.format("%02x", b & 0xff));
         }
-
+        System.out.println(sb);
         return sb.toString();
     }
 
@@ -190,7 +216,6 @@ class Client {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
-
         try {
             URL registerURL = new URL(baseURL, "register");
             connection = (HttpURLConnection) registerURL.openConnection();
@@ -227,13 +252,13 @@ class Client {
         }
     }
 
-    public static void retrieveFileList() throws Exception {
+    public static void retrieveFileList(String username) throws Exception {
         URL registerURL = new URL(baseURL, "list");
         HttpURLConnection connection = (HttpURLConnection) registerURL
                 .openConnection();
         connection.setRequestMethod("GET");
         //connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("username", "dusty");
+        connection.setRequestProperty("username", username);
         /*
         JSONObject msg = new JSONObject();
         msg.put("username", "dbones");
@@ -250,7 +275,7 @@ class Client {
                 connection.getInputStream()));
 */
         String resp = connection.getResponseMessage();
-
+        //TODO PRINT FILE LIST
         System.out.println(resp);
 
     }
@@ -265,7 +290,6 @@ class Client {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
-            password = md5Encode(password);
             JSONObject msg = new JSONObject();
             msg.put("username", username);
             msg.put("password", password);
@@ -276,13 +300,11 @@ class Client {
 
             out.write(msg.toString());
             out.close();
-
             if (connection.getResponseCode() == 200) {
                 in = new BufferedReader(new InputStreamReader(
                         connection.getInputStream()));
                 System.out.println(in.readLine());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -308,7 +330,7 @@ class Client {
 
         try {
             JSONObject msg = new JSONObject();
-            msg.put("username", "dusty");//TODO change back to username
+            msg.put("username", username);//TODO change back to username
             msg.put("filename", new File(filePath).getName());
             msg.put("path", filePath);
             msg.put("version", Utils.getFileID(filePath));
