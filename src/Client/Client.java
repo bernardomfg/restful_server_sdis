@@ -78,6 +78,7 @@ class Client {
                     break;
                 case 5:
                     //Print list
+                    //TODO: display filename where user has permission to delete and prompt version
                     System.out.println("Wich file you want to delete?: ");
                     String fileToDelete;
                     fileToDelete = s.next();
@@ -170,7 +171,6 @@ class Client {
                     username = s.next();
                     System.out.println("Password: ");
                     password = s.next();
-                    password = md5Encode(password);
                     login(username,password);
                     login_checked = true; //TODO Check login return, or server sucess message
                     if (login_checked == true) {
@@ -190,8 +190,8 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
-        baseURL = new URL("http://localhost:8000/");
-        upload("hue.txt");
+        baseURL = new URL("http://localhost:8000");
+        upload("C:\\Users\\Bernardo\\hue.txt");
         //register("asdwr", "cenas", "email@email");
         // register("asd", "cenas", "email@email");
         // register("dsa", "cenas", "email@email");
@@ -286,6 +286,7 @@ class Client {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
+        password = md5Encode(password);
         try {
             URL loginURL = new URL(baseURL, "login");
             connection = (HttpURLConnection) loginURL.openConnection();
@@ -305,7 +306,7 @@ class Client {
             if (connection.getResponseCode() == 200) {
                 in = new BufferedReader(new InputStreamReader(
                         connection.getInputStream()));
-                System.out.println(in.readLine());
+                login_checked = true;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -56,14 +56,36 @@ public class LoginHandler implements HttpHandler {
                             responseBody.close();
                         }
                         else{
-                            //TODO: "wrong password"
                             System.out.println("wrong password");
+                            jsonResponse = new JSONObject();
+                            jsonResponse.put("status", "insuccess");
+                            jsonRequest.put("message", "wrong password");
+                            jsonResponse = new JSONObject().put("login", jsonResponse);
+
+                            responseHeaders.set("Content-Type", "application/json");
+                            httpExchange.sendResponseHeaders(401, jsonResponse.toString().length());
+                            responseBody = httpExchange.getResponseBody();
+                            responseBody.write(jsonResponse.toString().getBytes());
+                            System.out.println("sent response: " + jsonResponse);
+                            responseBody.close();
+
+
                         }
 
                     }
                     else{
-                        //TODO: "name doesnt exist"
-                        System.out.println("wrong username");
+                        System.out.println("username");
+                        jsonResponse = new JSONObject();
+                        jsonResponse.put("status", "insuccess");
+                        jsonRequest.put("message", "username not found");
+                        jsonResponse = new JSONObject().put("login", jsonResponse);
+
+                        responseHeaders.set("Content-Type", "application/json");
+                        httpExchange.sendResponseHeaders(404, jsonResponse.toString().length());
+                        responseBody = httpExchange.getResponseBody();
+                        responseBody.write(jsonResponse.toString().getBytes());
+                        System.out.println("sent response: " + jsonResponse);
+                        responseBody.close();
                     }
 
 

@@ -215,25 +215,30 @@ public class Database {
     }
 
     public boolean checkUser(String username) throws SQLException {
-        openConnection();
         StringBuilder select = new StringBuilder();
         String result = "";
+        boolean existsUser = true;
+        openConnection();
         select.append("SELECT username FROM User WHERE username = '"  + username + "';");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
+        existsUser = rs.next();
         closeConnection();
-        return rs.next();
+        return existsUser;
     }
 
     public boolean validateLogin(String username, String password) throws SQLException {
-        openConnection();
         StringBuilder select = new StringBuilder();
         String result = "";
+        boolean passwordOK;
+
+        openConnection();
         select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = '" + password + "';");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
+        passwordOK = rs.next();
         closeConnection();
-        return rs.next();
+        return passwordOK;
     }
     public void removeFile(String filename) throws SQLException {
         openConnection();
