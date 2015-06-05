@@ -205,14 +205,14 @@ public class Database {
         ResultSet rs = this.stmt.executeQuery(result);
         return rs.next();
     }
-    /*public boolean validateRegister(String username, String email) throws SQLException {
+    public boolean validateLogin(String username, String password) throws SQLException {
         StringBuilder select = new StringBuilder();
         String sql_result = "", result= "";
         select.append("SELECT username,password FROM User WHERE username = '" + username + "' AND password = " + password + ";");
         result = select.toString();
         ResultSet rs = this.stmt.executeQuery(result);
         return rs.next();
-    }*/
+    }
 
 
     private void createTables() {
