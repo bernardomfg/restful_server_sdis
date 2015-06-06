@@ -9,9 +9,6 @@ import java.io.*;
 
 import static Server.Server.db;
 
-/**
- * Created by Bernardo on 01-06-2015.
- */
 public class RegisterHandler implements HttpHandler {
 
     @Override
@@ -41,9 +38,8 @@ public class RegisterHandler implements HttpHandler {
                 try {
                     jsonRequest = new JSONObject(bfBody.readLine());
                     username = jsonRequest.getJSONObject("registration").get("username").toString();
-                    password = jsonRequest.getJSONObject("registration").get("password").toString();
+                    password = jsonRequest.getJSONObject("registration").getString("password");
                     email = jsonRequest.getJSONObject("registration").get("email").toString();
-
 
                     db.insertUsers(username, password, email);
 
@@ -60,8 +56,6 @@ public class RegisterHandler implements HttpHandler {
                 } catch (Exception e) {
                     System.err.println(e.getClass().getName() + ": " + e.getMessage());
                     e.printStackTrace();
-                    //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
-                    //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
             }
         } else {

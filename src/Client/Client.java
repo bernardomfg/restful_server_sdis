@@ -1,17 +1,14 @@
 package Client;
 
 import Utils.Utils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -20,9 +17,7 @@ import java.util.Scanner;
 class Client {
     static URL baseURL;
     private static boolean login_checked = false;
-    private static String username;
-    private static String password;
-    private static String email;
+    private static String userLoged;
 
     private static void manageFilesMenu() throws Exception {
         // Local variable
@@ -35,7 +30,7 @@ class Client {
             System.out.println("| Options:                        |");
             System.out.println("|        1. Upload File           |");
             System.out.println("|        2. Download File         |");
-            System.out.println("|        3. List Existent Files   |"); //list files, Permissions, Remove files
+            System.out.println("|        3. List Existent Files   |");
             System.out.println("|        4. Edit File Permissions |");
             System.out.println("|        5. Delete File           |");
             System.out.println("|        6. Exit                  |");
@@ -48,19 +43,20 @@ class Client {
                     System.out.println("Please insert the path to the desired file: ");
                     String filePath;
                     filePath = s.next();
-                    //TODO: CALL UPLOAD HANDLER WHEN FINISHED
+                    upload(filePath);
                     break;
                 case 2:
-                    //TODO DOWNLOAD ON CLIENT SIDE
+                    System.out.println("Please insert the name of the desired file: ");
+                    String fileName;
+                    fileName = s.next();
+                    download(fileName);
                     break;
                 case 3:
-                    System.out.println(username + "owns all these files: ");
-                    //TODO PRINT LSIT
-                    retrieveFileList(username);
+                    System.out.println(userLoged + "owns all these files: ");
+                    retrieveFileList(userLoged);
                     break;
                 case 4:
                     System.out.println("Please insert the file name you want to edit permissions: ");
-                    String fileName;
                     fileName = s.next();
                     String option, usernameToSearch, emailToSearch;
                     option = s.next();
@@ -79,13 +75,11 @@ class Client {
                     break;
                 case 5:
                     //Print list
-                    //TODO: display filename where user has permission to delete
-                    ArrayList<String> files = getPermittedFiles();
-                    displayPermittedFiles(files);
-                    System.out.println("Which file you want to delete?: ");
+                    //TODO: display filename where user has permission to delete and prompt version
+                    System.out.println("Wich file you want to delete?: ");
                     String fileToDelete;
                     fileToDelete = s.next();
-                    deleteFile(files.get(Integer.parseInt(fileToDelete)-1));
+                    //DELETE HANDLER
                     break;
                 case 6:
                     break;
@@ -110,7 +104,7 @@ class Client {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("username", username);
+            connection.setRequestProperty("username", userLoged);
             connection.setRequestProperty("permission", "1");
 
             if (connection.getResponseCode() == 200) {
@@ -198,23 +192,23 @@ class Client {
                 case 1:
                     System.out.println("REGISTER");
                     System.out.println("Username: ");
-                    username = s.next();
+                    String username = s.next();
                     System.out.println("Password: ");
-                    password = s.next(); //password encoding done in register and login functions;
+                    String password = s.next();
+                    password = Utils.sha256(password);
                     System.out.println("Email: ");
-                    email = s.next();
+                    String email = s.next();
                     register(username, password, email);
                     break;
                 case 2:
                     System.out.println("LOGIN");
                     //METHOD TO ASK FOR CREDENTIALS AND TRY TO LOGIN FROM DB
-
                     System.out.println("Username: ");
                     username = s.next();
                     System.out.println("Password: ");
                     password = s.next();
-                    login(username,password);
-                    login_checked = true; //TODO Check login return, or server sucess message
+                    password = Utils.sha256(password);
+                    login(username, password);
                     if (login_checked == true) {
                         userMenu();
                     } else {
@@ -232,53 +226,35 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
+        System.setProperty("javax.net.ssl.trustStore", "truststore");
+        System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 
+        baseURL = new URL("https://127.0.0.1:9001/");
+        login_checked = true;
 
-        baseURL = new URL("http://localhost:9999/");
-        //username = "dusty";
-        retrieveFileList("luis");
-        //upload("test/hue.txt");
-        register("asdwr", "cenas", "email@email");
-        register("asd", "cenas", "email@email");
-        register("dsa", "cenas", "email@email");
-        register("duwesty", "cenas", "email@email");
-        //firstMenu();
+        firstMenu();
     }
 
-    public static String md5Encode(String pw) throws NoSuchAlgorithmException {
-        //code found on:
-        //http://www.avajava.com/tutorials/lessons/how-do-i-generate-an-md5-digest-for-a-string.html
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(pw.getBytes());
-        byte[] digest = md.digest();
-        StringBuffer sb = new StringBuffer();
-        for (byte b : digest) {
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        System.out.println(sb);
-        return sb.toString();
-    }
 
     public static void register(String username, String password, String email)
             throws Exception {
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
         try {
             URL registerURL = new URL(baseURL, "register");
-            connection = (HttpURLConnection) registerURL.openConnection();
+            connection = (HttpsURLConnection) registerURL.openConnection();
+            connection.setHostnameVerifier((hostname, session) -> true); //TODO: change this
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
-            password = md5Encode(password);
+            password = Utils.sha256(password);
             msg.put("username", username);
             msg.put("password", password);
             msg.put("email", email);
             msg = new JSONObject().put("registration", msg);
-
             out = new OutputStreamWriter(connection.getOutputStream());
-
             out.write(msg.toString());
             out.close();
 
@@ -301,17 +277,13 @@ class Client {
     }
 
     public static void retrieveFileList(String username) throws Exception {
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
-        InputStreamReader inputReader = null;
-        String line, result;
-        JSONObject jsonResponse = null;
-        JSONArray jsonArray = null;
-
         try {
             URL listURL = new URL(baseURL, "list");
-            connection = (HttpURLConnection) listURL.openConnection();
+            connection = (HttpsURLConnection) listURL.openConnection();
+            connection.setHostnameVerifier((hostname, session) -> true); //TODO: change this
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -319,17 +291,11 @@ class Client {
             connection.setRequestProperty("permission", "0");
 
             if (connection.getResponseCode() == 200) {
-                inputReader = new InputStreamReader(connection.getInputStream());
-                in = new BufferedReader(inputReader);
-                do {
-                    line = in.readLine();
-                    result = line;
-                } while (line != null);
-
-
-
-
-
+                in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                String resp = connection.getResponseMessage();
+                System.out.println(resp);
+                //TODO PRINT FILE LIST
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -345,13 +311,13 @@ class Client {
     }
 
     public static void login(String username, String password) throws Exception {
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
-        password = md5Encode(password);
         try {
             URL loginURL = new URL(baseURL, "login");
-            connection = (HttpURLConnection) loginURL.openConnection();
+            connection = (HttpsURLConnection) loginURL.openConnection();
+            connection.setHostnameVerifier((hostname, session) -> true); //TODO: change this
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -359,15 +325,17 @@ class Client {
             msg.put("username", username);
             msg.put("password", password);
             msg = new JSONObject().put("login", msg);
-
-
             out = new OutputStreamWriter(connection.getOutputStream());
-
             out.write(msg.toString());
             out.close();
+
             if (connection.getResponseCode() == 200) {
                 in = new BufferedReader(new InputStreamReader(
                         connection.getInputStream()));
+                String resp = in.readLine();
+                System.out.println(resp);
+                if (new JSONObject(resp).getJSONObject("login").get("status").equals("success"))
+                    userLoged = username;
                 login_checked = true;
             }
         } catch (Exception e) {
@@ -384,7 +352,7 @@ class Client {
 
     public static void upload(String filePath) throws Exception {
         URL uploadURL = new URL(baseURL, "upload");
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         BufferedReader br = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -392,13 +360,14 @@ class Client {
         FileInputStream fis = null;
         SSLSocket sslSocket = null;
         try {
-            connection = (HttpURLConnection) uploadURL
+            connection = (HttpsURLConnection) uploadURL
                     .openConnection();
+            connection.setHostnameVerifier((hostname, session) -> true); //TODO: change this
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
-            msg.put("username", username);//TODO change back to username
+            msg.put("username", userLoged);
             msg.put("filename", new File(filePath).getName());
             msg.put("path", filePath);
             msg.put("version", Utils.getFileID(filePath));
@@ -413,17 +382,19 @@ class Client {
                 JSONObject responseMessage = new JSONObject(in.readLine());
                 int port = responseMessage.getJSONObject("upload").getInt("port");
                 SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", port);
+                sslSocket = (SSLSocket) sslSocketFactory.createSocket("s" + port, port);
 
                 fis = new FileInputStream(filePath);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                BufferedOutputStream bos = new BufferedOutputStream(sslSocket.getOutputStream());
 
-                /*osw = new OutputStreamWriter(sslSocket.getOutputStream());
-                osw.flush();*/
                 byte[] buffer = new byte[sslSocket.getSendBufferSize()];
-                int i = 0;
-                while ((i = fis.read(buffer)) > -1) {
-                    sslSocket.getOutputStream().write(buffer, 0, i);
+                int i;
+                while ((i = bis.read(buffer)) > -1) {
+                    bos.write(buffer, 0, i);
                 }
+
+                System.out.println(in.readLine());
             }
 
         } catch (IOException e) {
@@ -439,7 +410,7 @@ class Client {
 
     }
 
-    public void download() throws Exception {
+    public static void download(String filename) throws Exception {
         URL downloadURL = new URL(baseURL, "download");
         HttpURLConnection connection = (HttpURLConnection) downloadURL
                 .openConnection();
@@ -460,7 +431,7 @@ class Client {
         }
     }
 
-    public static void deleteUser() throws Exception {
+    public void deleteUser() throws Exception {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -497,7 +468,7 @@ class Client {
         }
     }
 
-    public static void deleteFile(String file) throws Exception {
+    public void deleteFile(String file) throws Exception {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -508,7 +479,7 @@ class Client {
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
-            msg.put("username", username);
+            msg.put("username", userLoged);
             msg.put("filename", file);
             msg = new JSONObject().put("delete", msg);
 

@@ -54,9 +54,6 @@ public class DeleteHandler  implements HttpHandler {
 
                 } catch (Exception e) {
                     System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                    e.printStackTrace();
-                    //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
-                    //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
             }
         } else {

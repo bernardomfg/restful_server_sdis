@@ -3,9 +3,11 @@ package Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -79,5 +81,15 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static String sha256(String pw) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(pw.getBytes("UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        for (byte aHash : hash) {
+            sb.append(Integer.toString((aHash & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 }

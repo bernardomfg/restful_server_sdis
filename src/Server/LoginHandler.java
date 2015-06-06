@@ -9,9 +9,6 @@ import java.io.*;
 
 import static Server.Server.db;
 
-/**
- * Created by Bernardo on 04-06-2015.
- */
 public class LoginHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
@@ -35,15 +32,14 @@ public class LoginHandler implements HttpHandler {
 
         OutputStream responseBody = null;
 
-        if (method.equals("POST")){
-            if (requestHeaders.getFirst("Content-type").equals("application/json")){
-                try{
+        if (method.equals("POST")) {
+            if (requestHeaders.getFirst("Content-type").equals("application/json")) {
+                try {
                     jsonRequest = new JSONObject(bfBody.readLine());
                     username = jsonRequest.getJSONObject("login").get("username").toString();
                     password = jsonRequest.getJSONObject("login").get("password").toString();
-
-                    if (db.checkUser(username)){
-                        if (db.validateLogin(username, password)){
+                    if (db.checkUser(username)) {
+                        if (db.validateLogin(username, password)) {
                             jsonResponse = new JSONObject();
                             jsonResponse.put("status", "success");
                             jsonResponse = new JSONObject().put("login", jsonResponse);
@@ -52,10 +48,8 @@ public class LoginHandler implements HttpHandler {
                             httpExchange.sendResponseHeaders(200, jsonResponse.toString().length());
                             responseBody = httpExchange.getResponseBody();
                             responseBody.write(jsonResponse.toString().getBytes());
-                            System.out.println("sent response: " + jsonResponse);
                             responseBody.close();
-                        }
-                        else{
+                        } else {
                             System.out.println("wrong password");
                             jsonResponse = new JSONObject();
                             jsonResponse.put("status", "insuccess");
@@ -66,14 +60,9 @@ public class LoginHandler implements HttpHandler {
                             httpExchange.sendResponseHeaders(401, jsonResponse.toString().length());
                             responseBody = httpExchange.getResponseBody();
                             responseBody.write(jsonResponse.toString().getBytes());
-                            System.out.println("sent response: " + jsonResponse);
                             responseBody.close();
-
-
                         }
-
-                    }
-                    else{
+                    } else {
                         System.out.println("username");
                         jsonResponse = new JSONObject();
                         jsonResponse.put("status", "insuccess");
@@ -84,20 +73,13 @@ public class LoginHandler implements HttpHandler {
                         httpExchange.sendResponseHeaders(404, jsonResponse.toString().length());
                         responseBody = httpExchange.getResponseBody();
                         responseBody.write(jsonResponse.toString().getBytes());
-                        System.out.println("sent response: " + jsonResponse);
                         responseBody.close();
                     }
-
-
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                    e.printStackTrace();
-                    //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
-                    //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
             }
-        }
-        else {
+        } else {
             System.err.println("ERROR: login requires POST method");
             httpExchange.sendResponseHeaders(405, 0);
         }
