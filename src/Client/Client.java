@@ -318,11 +318,7 @@ class Client {
 
     public static void upload(String filePath) throws Exception {
         URL uploadURL = new URL(baseURL, "upload");
-        HttpURLConnection connection = (HttpURLConnection) uploadURL
-                .openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("PUT");
-        connection.setRequestProperty("Content-Type", "application/json");
+        HttpURLConnection connection = null;
         BufferedReader br = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -330,6 +326,11 @@ class Client {
         FileInputStream fis = null;
         SSLSocket sslSocket = null;
         try {
+            connection = (HttpURLConnection) uploadURL
+                    .openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
             JSONObject msg = new JSONObject();
             msg.put("username", username);//TODO change back to username
             msg.put("filename", new File(filePath).getName());
@@ -337,15 +338,13 @@ class Client {
             msg.put("version", Utils.getFileID(filePath));
             msg = new JSONObject().put("upload", msg);
             out = new OutputStreamWriter(connection.getOutputStream());
-            System.out.println(msg);
 
             out.write(msg.toString());
             out.close();
-
             if (connection.getResponseCode() == 200) {
-                String s = connection.getResponseMessage();
-                System.out.println(s);
-                JSONObject responseMessage = new JSONObject(s);
+                in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                JSONObject responseMessage = new JSONObject(in.readLine());
                 int port = responseMessage.getJSONObject("upload").getInt("port");
                 SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
                 sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", port);
@@ -367,6 +366,7 @@ class Client {
             if (osw != null) osw.close();
             if (fis != null) fis.close();
             if (sslSocket != null) sslSocket.close();
+            if (connection != null) connection.disconnect();
             if (br != null) br.close();
         }
 

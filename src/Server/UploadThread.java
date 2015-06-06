@@ -22,6 +22,7 @@ public class UploadThread extends Thread {
     @Override
     public void run() {
 
+        System.out.println("starting new upThread, using port ");
         JSONObject jsonRequest, jsonResponse;
 
         String username, filename, path, version;
