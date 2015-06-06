@@ -1,15 +1,19 @@
 package Client;
 
 import Utils.Utils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
 
@@ -75,11 +79,13 @@ class Client {
                     break;
                 case 5:
                     //Print list
-                    //TODO: display filename where user has permission to delete and prompt version
-                    System.out.println("Wich file you want to delete?: ");
+                    //TODO: display filename where user has permission to delete
+                    ArrayList<String> files = getPermittedFiles();
+                    displayPermittedFiles(files);
+                    System.out.println("Which file you want to delete?: ");
                     String fileToDelete;
                     fileToDelete = s.next();
-                    //DELETE HANDLER
+                    deleteFile(files.get(Integer.parseInt(fileToDelete)-1));
                     break;
                 case 6:
                     break;
@@ -88,6 +94,53 @@ class Client {
                     break; // This break is not really necessary
             }
         } while (swValue != 7);
+    }
+
+    private static ArrayList<String> getPermittedFiles() throws Exception {
+
+        HttpURLConnection connection = null;
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+        JSONObject jsonResponse = null;
+        ArrayList<String> permittedFiles = new ArrayList<>();
+
+        try {
+            URL listURL = new URL(baseURL, "list");
+            connection = (HttpURLConnection) listURL.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("username", username);
+            connection.setRequestProperty("permission", "1");
+
+            if (connection.getResponseCode() == 200) {
+                //jsonResponse = new JSONObject(connection.getResponseMessage()).getJSONObject("file list");
+                jsonResponse = new JSONObject(connection.getResponseMessage().toString());
+                System.out.println(jsonResponse);
+
+                for(Iterator iterator = jsonResponse.keys(); iterator.hasNext();) {
+                    String key = (String) iterator.next();
+                    permittedFiles.add(jsonResponse.get(key).toString());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null)
+                in.close();
+            if (out != null)
+                out.close();
+            if (in != null)
+                connection.disconnect();
+            return permittedFiles;
+        }
+
+    }
+
+    private static void displayPermittedFiles(ArrayList<String> filenames) {
+        for (int i = 0; i < filenames.size(); i++){
+            System.out.println(i+1 + ". " + filenames.get(i));
+        }
     }
 
     private static void userMenu() throws Exception {
@@ -160,8 +213,7 @@ class Client {
                     username = s.next();
                     System.out.println("Password: ");
                     password = s.next();
-                    password = md5Encode(password);
-                    login(username, password);
+                    login(username,password);
                     login_checked = true; //TODO Check login return, or server sucess message
                     if (login_checked == true) {
                         userMenu();
@@ -180,14 +232,16 @@ class Client {
 
     public static void main(String[] args) throws Exception {
 
+
+
         baseURL = new URL("http://localhost:9999/");
-        username = "dusty";
-        //retrieveFileList(username);
-        upload("test/hue.txt");
-        //register("asdwr", "cenas", "email@email");
-        // register("asd", "cenas", "email@email");
-        // register("dsa", "cenas", "email@email");
-        //register("duwesty", "cenas", "email@email");
+        //username = "dusty";
+        retrieveFileList("luis");
+        //upload("test/hue.txt");
+        register("asdwr", "cenas", "email@email");
+        register("asd", "cenas", "email@email");
+        register("dsa", "cenas", "email@email");
+        register("duwesty", "cenas", "email@email");
         //firstMenu();
     }
 
@@ -250,6 +304,11 @@ class Client {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
+        InputStreamReader inputReader = null;
+        String line, result;
+        JSONObject jsonResponse = null;
+        JSONArray jsonArray = null;
+
         try {
             URL listURL = new URL(baseURL, "list");
             connection = (HttpURLConnection) listURL.openConnection();
@@ -257,13 +316,20 @@ class Client {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("username", username);
+            connection.setRequestProperty("permission", "0");
 
             if (connection.getResponseCode() == 200) {
-                in = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                String resp = connection.getResponseMessage();
-                System.out.println(resp);
-                //TODO PRINT FILE LIST
+                inputReader = new InputStreamReader(connection.getInputStream());
+                in = new BufferedReader(inputReader);
+                do {
+                    line = in.readLine();
+                    result = line;
+                } while (line != null);
+
+
+
+
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -394,7 +460,7 @@ class Client {
         }
     }
 
-    public void deleteUser() throws Exception {
+    public static void deleteUser() throws Exception {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;
@@ -431,7 +497,7 @@ class Client {
         }
     }
 
-    public void deleteFile(String file) throws Exception {
+    public static void deleteFile(String file) throws Exception {
         HttpURLConnection connection = null;
         OutputStreamWriter out = null;
         BufferedReader in = null;

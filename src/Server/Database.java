@@ -118,14 +118,16 @@ public class Database {
     }
 
     public int getFileID(String filename) {
+        int res;
         String sql_select;
         sql_select = "SELECT idFile FROM File WHERE filename = '" +
                 filename + "'";
         try {
             openConnection();
             ResultSet results = this.stmt.executeQuery(sql_select);
+            res = results.getInt("idFile");
             closeConnection();
-            return results.getInt("idFile");
+            return res;
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -134,7 +136,7 @@ public class Database {
     }
 
     private void createFileTable() {
-        String sql_create = "CREATE TABLE IF NOT EXISTS File(idFIle INTEGER PRIMARY KEY  AUTOINCREMENT, filename " +
+        String sql_create = "CREATE TABLE IF NOT EXISTS File(idFile INTEGER PRIMARY KEY  AUTOINCREMENT, filename " +
                 "varchar(50) NOT NULL, path varchar(255) NOT NULL, version varchar(255) NOT NULL);";
 
         try {
@@ -176,17 +178,31 @@ public class Database {
         System.out.println("Insertion completed!");
     }
 
-    public ArrayList<String> getUserFile(String username) {
-        String sql_select;
-        sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = '" +
-                username + "')";
+    public ArrayList<String> getUserFile(String username, int permission) {
+        String sql_select = null;
+        openConnection();
+        if (permission == 0)
+            sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = '" +
+                username + "');";
+        else if (permission == 1)
+            sql_select = "SELECT filename FROM File WHERE idFile = (SELECT idFile FROM UserFile WHERE username = '" +
+                    username + "' AND permission = " + permission + ");";
         try {
-            openConnection();
+
             ResultSet results = this.stmt.executeQuery(sql_select);
+            System.out.println("finished stmt");
             ArrayList<String> fileList = new ArrayList<>();
-            while (results.next()) {
-                fileList.add(results.getString("fileName"));
+            results.next();
+            System.out.println(results.getString("filename"));
+            /*while (results.next()) {
+                fileList.add(results.getString("filename"));
+                System.out.println(results.getString("filename"));
+            }*/
+            closeConnection();
+            for (int i = 0; i< fileList.size(); i++){
+                System.out.println("Database -> getUserFile " + fileList.get(i));
             }
+
             return fileList;
         } catch (SQLException e) {
             e.printStackTrace();

@@ -16,6 +16,7 @@ public class ListHandler implements HttpHandler {
         JSONObject jsonResponse, jsonList;
 
         String username;
+        int permission;
 
         String method;
         method = httpExchange.getRequestMethod();
@@ -23,15 +24,22 @@ public class ListHandler implements HttpHandler {
         Headers requestHeaders;
         requestHeaders = httpExchange.getRequestHeaders();
 
+        Headers responseHeaders;
+        responseHeaders = httpExchange.getResponseHeaders();
+
         OutputStream responseBody;
 
         if (method.equals("POST")) {
             if (requestHeaders.getFirst("Content-Type").equals("application/json")) {
                 try {
                     username = requestHeaders.getFirst("username").toString();
+                    permission = Integer.parseInt(requestHeaders.getFirst("permission").toString());
+                    System.out.println(permission);
 
-                    ArrayList<String> fileList = db.getUserFile(username);
+                    ArrayList<String> fileList = db.getUserFile(username, permission);
 
+
+                    responseHeaders.set("Content-Type", "application/json");
                     jsonResponse = new JSONObject().put("status", "success");
                     jsonList = new JSONObject();
                     for (String s : fileList) {
@@ -52,8 +60,8 @@ public class ListHandler implements HttpHandler {
                     //TODO: Tratamento de erros em todos os catches usando os status http como resposta;
                     //TODO: Consultar http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 }
-
             }
+            
         } else {
             System.out.println("ERROR: expected POST method");
             httpExchange.sendResponseHeaders(405, 0);
